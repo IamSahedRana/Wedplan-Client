@@ -4,15 +4,29 @@ import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { PremiumBadge } from "@/components/shared/PremiumBadge";
 import { Card } from "@/components/ui/card";
+import { authClient } from "@/lib/auth-client";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function ServiceCard({ service, className }) {
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
   const { _id, serviceName, category, price, location, images = [], premium } = service;
+
+  // /services/[id] is a private route: unauthenticated clicks get a toast +
+  // redirect to /signin?redirect=/services/[id].
+  function handleClick(e) {
+    if (isPending || session?.user) return;
+    e.preventDefault();
+    toast.error("Please sign in to view service details");
+    router.push(`/signin?redirect=/services/${_id}`);
+  }
 
   return (
     <motion.div
@@ -22,7 +36,7 @@ export function ServiceCard({ service, className }) {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className={cn("h-full", className)}
     >
-      <Link href={`/services/${_id}`} className="block h-full outline-none">
+      <Link href={`/services/${_id}`} onClick={handleClick} className="block h-full outline-none">
         <Card className="card-lift h-full overflow-hidden p-0">
           <div className="relative aspect-[4/3] w-full bg-muted">
             {images[0] ? (
