@@ -1,17 +1,10 @@
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-
-import { getAuth } from "@/lib/auth";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const IMGBB_URL = "https://api.imgbb.com/1/upload";
 
+// Public: the signup form uploads a profile image before any account exists.
 export async function POST(request) {
-  const session = await getAuth().api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    return NextResponse.json({ message: "Authentication required" }, { status: 401 });
-  }
-
   if (!process.env.IMGBB_API_KEY) {
     return NextResponse.json({ message: "Image upload is not configured" }, { status: 500 });
   }
@@ -38,14 +31,11 @@ export async function POST(request) {
       body: uploadForm,
     });
 
-    if (!res.ok) {
-      return NextResponse.json({ message: "Image upload failed" }, { status: 502 });
-    }
-
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
     const url = data?.data?.url;
-    if (!url) {
-      return NextResponse.json({ message: "Image upload failed" }, { status: 502 });
+    if (!res.ok || !url) {
+      const message = data?.error?.message || "Image upload failed";
+      return NextResponse.json({ message }, { status: 502 });
     }
 
     return NextResponse.json({ url }, { status: 201 });
