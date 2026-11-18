@@ -1,13 +1,13 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const IMGBB_URL = "https://api.imgbb.com/1/upload";
 
 export async function POST(request) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getAuth().api.getSession({ headers: await headers() });
   if (!session?.user) {
     return NextResponse.json({ message: "Authentication required" }, { status: 401 });
   }

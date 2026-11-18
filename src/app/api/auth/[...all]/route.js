@@ -1,8 +1,9 @@
-import { toNextJsHandler } from "better-auth/next-js";
+import { getAuth } from "@/lib/auth";
 
-import { auth } from "@/lib/auth";
+/** better-auth's fetch-style handler, called directly for GET and POST. */
+async function handle(request) {
+  return getAuth().handler(request);
+}
 
-const handlers = toNextJsHandler(auth.handler);
-
-export const GET = handlers.GET;
-export const POST = handlers.POST;
+export const GET = handle;
+export const POST = handle;

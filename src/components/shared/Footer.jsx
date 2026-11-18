@@ -1,6 +1,7 @@
-import { Facebook, Instagram, Mail, MapPin, Phone, Twitter, Youtube } from "lucide-react";
+import { AtSign, Camera, Globe, Mail, MapPin, Phone, Play } from "lucide-react";
 import Link from "next/link";
 
+import { CopyrightYear } from "@/components/shared/CopyrightYear";
 import { Logo } from "@/components/shared/Logo";
 
 const SERVICE_LINKS = [
@@ -17,10 +18,10 @@ const QUICK_LINKS = [
 ];
 
 const SOCIALS = [
-  { icon: Facebook, label: "Facebook", href: "https://facebook.com" },
-  { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
-  { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
-  { icon: Youtube, label: "YouTube", href: "https://youtube.com" },
+  { icon: AtSign, label: "Facebook", href: "https://facebook.com" },
+  { icon: Camera, label: "Instagram", href: "https://instagram.com" },
+  { icon: Globe, label: "X (Twitter)", href: "https://twitter.com" },
+  { icon: Play, label: "YouTube", href: "https://youtube.com" },
 ];
 
 export function Footer() {
@@ -102,7 +103,7 @@ export function Footer() {
 
       <div className="border-t border-border">
         <div className="container-page py-5 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} WedPlan. All rights reserved.
+          © <CopyrightYear /> WedPlan. All rights reserved.
         </div>
       </div>
     </footer>
