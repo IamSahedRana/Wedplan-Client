@@ -21,7 +21,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
+    <html lang="en" className={`${poppins.variable} h-full antialiased`} data-scroll-behavior="smooth">
       <body className="flex min-h-full flex-col">
         <TooltipProvider delayDuration={200}>
           <Navbar />
