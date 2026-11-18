@@ -3,7 +3,13 @@
 import { authClient } from "./auth-client";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+// NEXT_PUBLIC_API_URL may be given with or without the /api suffix — normalize it.
+const RAW_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+const API_URL = RAW_API_URL
+  ? RAW_API_URL.endsWith("/api")
+    ? RAW_API_URL
+    : `${RAW_API_URL.replace(/\/+$/, "")}/api`
+  : "";
 
 let cachedToken = null;
 let cachedExpiry = 0;
