@@ -120,8 +120,8 @@ export function ServicesBrowser() {
     ["q", "Search"],
     ["category", "Category"],
     ["location", "Location"],
-    ["minPrice", "Min ৳"],
-    ["maxPrice", "Max ৳"],
+    ["minPrice", "Min $"],
+    ["maxPrice", "Max $"],
   ]) {
     const value = searchParams.get(key);
     if (value) {
@@ -192,14 +192,14 @@ export function ServicesBrowser() {
               <Input
                 type="number"
                 min="0"
-                placeholder="Min ৳"
+                placeholder="Min $"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
               />
               <Input
                 type="number"
                 min="0"
-                placeholder="Max ৳"
+                placeholder="Max $"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
               />

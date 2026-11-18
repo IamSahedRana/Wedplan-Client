@@ -19,7 +19,7 @@ const BENEFITS = [
   {
     icon: Tag,
     title: "Transparent Pricing",
-    description: "Compare service prices upfront with clear ৳ pricing. No hidden charges, no surprises later.",
+    description: "Compare service prices upfront with clear USD pricing. No hidden charges, no surprises later.",
   },
   {
     icon: Headset,
