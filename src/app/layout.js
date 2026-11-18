@@ -1,5 +1,7 @@
 import { Poppins } from "next/font/google";
 
+import { Footer } from "@/components/shared/Footer";
+import { Navbar } from "@/components/shared/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -21,7 +23,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+        <TooltipProvider delayDuration={200}>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </TooltipProvider>
         <Toaster position="top-right" richColors />
       </body>
     </html>
