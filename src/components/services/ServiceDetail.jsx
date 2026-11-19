@@ -121,8 +121,8 @@ export function ServiceDetail() {
       );
   }, [service?._id, service?.category, similarRetry]);
 
-  // Wait for the session redirect to resolve.
-  if (isPending || (!user && !state.error)) return <DetailPageSkeleton />;
+  // Wait for the session redirect and the detail request to resolve.
+  if (isPending || state.loading || (!user && !state.error)) return <DetailPageSkeleton />;
 
   if (!validId) {
     return <FullPageError title="Invalid service link" message="The service you are looking for does not exist." />;
@@ -141,6 +141,9 @@ export function ServiceDetail() {
         <FullPageErrorInline message={state.error} onRetry={load} />
       </div>
     );
+  }
+  if (!service) {
+    return <FullPageError title="Service not found" message="The service you are looking for is unavailable." />;
   }
 
   const isOwner = String(service.vendorId) === user.id;
@@ -169,7 +172,7 @@ export function ServiceDetail() {
               <StatusBadge status={service.category} />
               {service.status !== "approved" && <StatusBadge status={service.status} />}
               {!service.isActive && <StatusBadge status="inactive" />}
-              {vendor.plan === "premium" && <PremiumBadge />}
+              {vendor.plan === "premium" && <PremiumBadge>Featured</PremiumBadge>}
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               {service.serviceName}
@@ -201,7 +204,7 @@ export function ServiceDetail() {
                 <p className="truncate font-semibold text-foreground">
                   {vendor.businessName || vendor.name}
                 </p>
-                {vendor.plan === "premium" && <PremiumBadge />}
+                {vendor.plan === "premium" && <PremiumBadge>Featured</PremiumBadge>}
                 <BadgeCheck className="size-4 text-success" aria-label="Verified vendor" />
               </div>
               {vendor.name && vendor.businessName && (

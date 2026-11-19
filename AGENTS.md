@@ -23,7 +23,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Primary #D70F64 · hover #B80C55 · tint #FDE7F0 · text #2E2E2E · secondary #6B6B6B · muted #9B9B9B · bg #FFFFFF · alt bg #F7F7F7 · border #E4E4E4
 Success #2E9E5B (tint #E6F6EC) · Warning #F5A623 (tint #FFF4DF) · Error #E21B1B (tint #FDE8E8) · Premium badge gold #C9A227 (badge only).
 Poppins font. Cards radius 16px, buttons pill (rounded-full), inputs radius 12px, shadow 0 4px 16px rgba(0,0,0,.06), card hover lift 2px. Map to shadcn variables (--primary #D70F64). Container max-w 1200px, section py-20.
-Status chips: Pending amber, Accepted/Approved/Active green, Rejected red, Cancelled grey, Premium gold. Price format ৳ via Intl.
+Status chips: Pending amber, Accepted/Approved/Active green, Rejected red, Cancelled grey, Premium gold. Price format $ (USD) via Intl.
 Every data view needs skeleton loading, empty state, error state. Fully responsive (tables → cards on mobile; mobile drawer nav).
 
 ## Layout

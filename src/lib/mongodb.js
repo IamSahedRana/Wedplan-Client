@@ -3,30 +3,28 @@ import { MongoClient } from "mongodb";
 let client;
 let cachedDb;
 
-function connect() {
+function createClient() {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error("MONGODB_URI is not set");
-  client = new MongoClient(uri);
-  return client.db(process.env.DB_NAME || undefined);
+  return new MongoClient(uri);
 }
 
 /**
- * Returns the MongoDB database, deferring the connection until the first
- * real operation. Keeps module init (and builds) safe when env vars are
- * placeholders; invalid URIs still fail loudly at first query.
+ * Returns a stable database handle. A single MongoClient is created lazily
+ * per process so the driver's connection pool is reused — creating a client
+ * on every property access exhausts Atlas connections during auth requests.
  */
 export function getMongoDb() {
   if (!cachedDb) {
-    cachedDb = new Proxy(
-      {},
-      {
-        get(_target, prop) {
-          const db = connect();
-          const value = Reflect.get(db, prop, db);
-          return typeof value === "function" ? value.bind(db) : value;
-        },
-      }
-    );
+    client = client || createClient();
+    const db = client.db(process.env.DB_NAME || undefined);
+
+    cachedDb = new Proxy(db, {
+      get(target, prop) {
+        const value = Reflect.get(target, prop, target);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
   }
   return cachedDb;
 }

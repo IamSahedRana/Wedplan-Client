@@ -4,6 +4,7 @@ export function safeRedirect(path) {
 }
 
 export function dashboardPathFor(role) {
+  console.log("role", role);
   const r = ["admin", "vendor", "customer"].includes(role) ? role : "customer";
   return `/dashboard/${r}`;
 }

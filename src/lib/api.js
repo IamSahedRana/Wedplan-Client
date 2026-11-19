@@ -77,6 +77,7 @@ export async function api(path, { method = "GET", body, headers, retry = true, .
       ...headers,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
+    cache: "no-store",
     ...rest,
   });
 

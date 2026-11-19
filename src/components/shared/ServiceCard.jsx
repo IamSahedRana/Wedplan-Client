@@ -17,7 +17,8 @@ import { cn } from "@/lib/utils";
 export function ServiceCard({ service, className, variants }) {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
-  const { _id, serviceName, category, price, location, images = [], premium } = service;
+  const { _id, serviceName, category, price, location, images = [] } = service;
+  const featured = service.featured || service.vendor?.plan === "premium" || service.premium;
 
   // /services/[id] is a private route: unauthenticated clicks get a toast +
   // redirect to /signin?redirect=/services/[id].
@@ -52,9 +53,9 @@ export function ServiceCard({ service, className, variants }) {
             <div className="absolute start-3 top-3 flex gap-2">
               <StatusBadge status={category} className="bg-white/90" />
             </div>
-            {premium && (
+            {featured && (
               <div className="absolute end-3 top-3">
-                <PremiumBadge />
+                <PremiumBadge>Featured</PremiumBadge>
               </div>
             )}
           </div>

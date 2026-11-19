@@ -139,9 +139,10 @@ export function ProfileSettings({ role }) {
   const { user } = state;
   const plan = user?.subscriptionPlan;
   const isPremium =
-    plan === "premium" &&
-    !!user?.subscriptionExpiresAt &&
-    new Date(user.subscriptionExpiresAt).getTime() > Date.now();
+    (plan === "PRO" && user?.subscriptionTimeline === "UNLIMITED") ||
+    (plan === "premium" &&
+      !!user?.subscriptionExpiresAt &&
+      new Date(user.subscriptionExpiresAt).getTime() > Date.now());
 
   return (
     <div className="space-y-6">

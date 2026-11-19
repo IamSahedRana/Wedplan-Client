@@ -45,9 +45,10 @@ const ROLE_STYLES = {
 
 function isPaidPremium(user) {
   return (
-    user?.subscriptionPlan === "premium" &&
-    !!user?.subscriptionExpiresAt &&
-    new Date(user.subscriptionExpiresAt).getTime() > Date.now()
+    (user?.subscriptionPlan === "PRO" && user?.subscriptionTimeline === "UNLIMITED") ||
+    (user?.subscriptionPlan === "premium" &&
+      !!user?.subscriptionExpiresAt &&
+      new Date(user.subscriptionExpiresAt).getTime() > Date.now())
   );
 }
 
@@ -229,7 +230,7 @@ export function ManageUsers() {
                       </span>
                     </TableCell>
                     <TableCell className="text-xs text-secondary-foreground">
-                      {user.role === "vendor" ? (isPaidPremium(user) ? "Premium" : "Free") : "—"}
+                      {user.role === "vendor" ? (isPaidPremium(user) ? "Pro" : "Free") : "—"}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{formatDate(user.createdAt)}</TableCell>
                     <TableCell>
@@ -277,7 +278,7 @@ export function ManageUsers() {
                     {user.isBlocked ? "Blocked" : "Active"}
                   </span>
                   <span>Joined {formatDate(user.createdAt)}</span>
-                  {user.role === "vendor" && <span>{isPaidPremium(user) ? "Premium" : "Free"}</span>}
+                  {user.role === "vendor" && <span>{isPaidPremium(user) ? "Pro" : "Free"}</span>}
                 </div>
                 <div className="flex gap-1 border-t border-border pt-3">
                   <Button variant="outline" size="sm" className="flex-1 rounded-full" onClick={() => setSelectedId(user._id)}>
@@ -343,7 +344,7 @@ export function ManageUsers() {
                 </Badge>
                 {selected.role === "vendor" && (
                   <Badge variant="outline" className="border-transparent bg-accent text-primary">
-                    {isPaidPremium(selected) ? "Premium" : "Free"}
+                    {isPaidPremium(selected) ? "Pro" : "Free"}
                   </Badge>
                 )}
               </div>

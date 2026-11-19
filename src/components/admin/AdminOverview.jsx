@@ -117,7 +117,7 @@ export function AdminOverview() {
       if (tx.status !== "paid" || !tx.createdAt) continue;
       const d = new Date(tx.createdAt);
       const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
-      if (key in totals) totals[key] += Number(tx.amount) || 0;
+      if (key in totals) totals[key] += (Number(tx.amount) || 0) / 100;
     }
     return months.map((m) => ({ name: m.label, revenue: Number(totals[m.key].toFixed(2)) }));
   }, [months, payments.items]);

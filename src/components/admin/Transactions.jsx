@@ -31,7 +31,7 @@ function usd(value, currency = "usd") {
     style: "currency",
     currency: String(currency || "usd").toUpperCase(),
     minimumFractionDigits: 2,
-  }).format(Number(value) || 0);
+  }).format((Number(value) || 0) / 100);
 }
 
 function shortSession(id) {
