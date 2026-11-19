@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 
 import { AccessDenied } from "@/components/dashboard/AccessDenied";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { getAuth } from "@/lib/auth";
 import { dashboardPathFor } from "@/lib/redirect";
 
@@ -15,7 +16,7 @@ async function VendorRoleGuard({ children }) {
 
 export default function VendorRoleLayout({ children }) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <VendorRoleGuard>{children}</VendorRoleGuard>
     </Suspense>
   );

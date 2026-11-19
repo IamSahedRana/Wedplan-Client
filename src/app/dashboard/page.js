@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { getAuth } from "@/lib/auth";
 import { dashboardPathFor } from "@/lib/redirect";
 
@@ -20,7 +21,7 @@ async function DashboardRedirect() {
 
 export default function DashboardRedirectPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <DashboardRedirect />
     </Suspense>
   );
