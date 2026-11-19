@@ -1,16 +1,20 @@
-import { PackageSearch } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
+import { Suspense } from "react";
 
-import { PlaceholderPage } from "@/components/dashboard/PlaceholderPage";
+import { ManageServices } from "@/components/admin/ManageServices";
 
 export const metadata = { title: "Manage Services — WedPlan" };
 
 export default function ManageServicesPage() {
   return (
-    <PlaceholderPage
-      title="Manage Services"
-      subtitle="Approve or reject vendor service submissions."
-      icon={PackageSearch}
-      description="The service moderation queue will appear here."
-    />
+    <Suspense
+      fallback={
+        <div className="flex min-h-[50vh] items-center justify-center">
+          <LoaderCircle className="size-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <ManageServices />
+    </Suspense>
   );
 }
