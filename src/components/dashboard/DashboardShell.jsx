@@ -47,6 +47,7 @@ const NAV_BY_ROLE = {
     { href: "/dashboard/admin/users", label: "Manage Users", icon: Users },
     { href: "/dashboard/admin/services", label: "Manage Services", icon: PackageSearch },
     { href: "/dashboard/admin/transactions", label: "Transactions", icon: ReceiptText },
+    { href: "/dashboard/admin/profile", label: "Profile Settings", icon: UserCog },
   ],
 };
 
