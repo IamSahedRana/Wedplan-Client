@@ -99,13 +99,21 @@ export function ProfileSettings({ role }) {
       const data = await api.patch("/profile", payload);
       setState((s) => ({ ...s, user: data.user }));
       invalidateToken();
-      await authClient.getSession();
-      router.refresh();
       toast.success("Profile updated successfully");
     } catch (err) {
       toast.error(err.message || "Could not save your profile");
+      return;
     } finally {
       setSaving(false);
+    }
+
+    // Session refresh is best-effort: a save already succeeded, so its failure
+    // must not show a false "could not save" error.
+    try {
+      await authClient.getSession();
+      router.refresh();
+    } catch {
+      // Keep the saved state; the next session read will pick up the change.
     }
   }
 

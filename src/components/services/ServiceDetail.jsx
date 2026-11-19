@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { BookingModal } from "@/components/services/BookingModal";
 import { ServiceGallery } from "@/components/services/ServiceGallery";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { PremiumBadge } from "@/components/shared/PremiumBadge";
 import { ServiceCard } from "@/components/shared/ServiceCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -67,7 +68,8 @@ export function ServiceDetail() {
 
   const validId = OBJECT_ID.test(id);
   const [state, setState] = useState({ loading: true, error: null, service: null });
-  const [similar, setSimilar] = useState({ loading: true, items: [] });
+  const [similar, setSimilar] = useState({ loading: true, error: null, items: [] });
+  const [similarRetry, setSimilarRetry] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
 
   // Private route: unauthenticated visitors go to /signin?redirect=/services/[id].
@@ -99,18 +101,25 @@ export function ServiceDetail() {
   // Similar services in the same category.
   useEffect(() => {
     if (!service) return;
-    setSimilar({ loading: true, items: [] });
+    setSimilar({ loading: true, error: null, items: [] });
     const qs = new URLSearchParams({ category: service.category || "", limit: "5" });
     api
       .get(`/services?${qs.toString()}`)
       .then((data) =>
         setSimilar({
           loading: false,
+          error: null,
           items: (data.items || []).filter((s) => s._id !== service._id).slice(0, 4),
         })
       )
-      .catch(() => setSimilar({ loading: false, items: [] }));
-  }, [service?._id, service?.category]);
+      .catch((err) =>
+        setSimilar({
+          loading: false,
+          error: err.message || "Failed to load similar services",
+          items: [],
+        })
+      );
+  }, [service?._id, service?.category, similarRetry]);
 
   // Wait for the session redirect to resolve.
   if (isPending || (!user && !state.error)) return <DetailPageSkeleton />;
@@ -250,6 +259,12 @@ export function ServiceDetail() {
               </div>
             ))}
           </div>
+        ) : similar.error ? (
+          <ErrorState
+            title="Couldn't load similar services"
+            message={similar.error}
+            onRetry={() => setSimilarRetry((n) => n + 1)}
+          />
         ) : similar.items.length === 0 ? (
           <p className="text-sm text-muted-foreground">No similar services found right now.</p>
         ) : (

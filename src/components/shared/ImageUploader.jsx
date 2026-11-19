@@ -94,6 +94,7 @@ export function ImageUploader({ value = [], onChange, multiple = false, disabled
             )
           );
           addUrls([url]);
+          toast.success(`${file.name} uploaded`);
         } catch (err) {
           toast.error(err.message || `${file.name} failed to upload`);
         } finally {

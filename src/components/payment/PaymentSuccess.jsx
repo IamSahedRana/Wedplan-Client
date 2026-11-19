@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Crown, LoaderCircle, TriangleAlert } from "lucide-react";
+import { ArrowRight, CheckCircle2, Crown, LoaderCircle, RotateCw, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -22,6 +22,7 @@ export function PaymentSuccess() {
   const [status, setStatus] = useState("verifying");
   const [transaction, setTransaction] = useState(null);
   const [error, setError] = useState(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     if (!sessionId) {
@@ -38,14 +39,20 @@ export function PaymentSuccess() {
       try {
         const data = await api.get(`/payments/session/${encodeURIComponent(sessionId)}`);
         if (cancelled) return;
+
         if (data.status === "paid") {
           setTransaction(data.transaction);
           setStatus("paid");
           invalidateToken();
-          await authClient.getSession();
+          try {
+            await authClient.getSession();
+          } catch {
+            // Payment is confirmed even if the local session refresh fails.
+          }
           router.refresh();
           return;
         }
+
         if (data.status === "failed") {
           setStatus("error");
           setError("The payment was not completed. Please try again.");
@@ -53,12 +60,17 @@ export function PaymentSuccess() {
         }
       } catch (err) {
         if (cancelled) return;
+        setStatus("error");
         setError(err.message || "Could not verify your payment");
+        return;
       }
 
       attempts += 1;
       if (attempts >= MAX_ATTEMPTS) {
-        if (!cancelled) setStatus("error");
+        if (!cancelled) {
+          setStatus("error");
+          setError("Verification is taking longer than expected. Please try again.");
+        }
         return;
       }
       timer = setTimeout(poll, POLL_INTERVAL);
@@ -69,7 +81,14 @@ export function PaymentSuccess() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [sessionId, router]);
+  }, [sessionId, router, retryKey]);
+
+  function retry() {
+    setStatus("verifying");
+    setError(null);
+    setTransaction(null);
+    setRetryKey((n) => n + 1);
+  }
 
   if (status === "verifying") {
     return (
@@ -133,7 +152,12 @@ export function PaymentSuccess() {
           {error || "Your payment status is still pending. You can check again shortly."}
         </p>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <Button asChild className="w-full rounded-full sm:w-auto">
+          {sessionId && (
+            <Button className="w-full rounded-full sm:w-auto" onClick={retry}>
+              <RotateCw className="size-4" /> Try again
+            </Button>
+          )}
+          <Button asChild variant="outline" className="w-full rounded-full sm:w-auto">
             <Link href="/dashboard/vendor/subscription">Back to subscription</Link>
           </Button>
           <Button asChild variant="outline" className="w-full rounded-full sm:w-auto">

@@ -86,8 +86,10 @@ export function BookingModal({ open, onOpenChange, service, user }) {
       toast.success("Booking request sent — track it from your dashboard");
       onOpenChange(false);
     } catch (err) {
-      // Duplicate bookings (409) and other API errors surface inline.
-      setInlineError(err.message || "Failed to send booking request");
+      // Duplicate bookings (409) and other API errors surface inline and via toast.
+      const message = err.message || "Failed to send booking request";
+      setInlineError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
