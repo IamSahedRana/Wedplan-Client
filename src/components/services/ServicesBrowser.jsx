@@ -274,7 +274,7 @@ export function ServicesBrowser() {
 
         {/* Pagination */}
         {!state.loading && !state.error && total > 0 && pages > 1 && (
-          <div className="mt-12 flex items-center justify-center gap-2">
+          <div className="mt-12 flex max-w-full flex-wrap items-center justify-center gap-2">
             <Button
               variant="outline"
               className="rounded-full"

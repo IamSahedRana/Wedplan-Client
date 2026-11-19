@@ -4,9 +4,15 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import { CategoryCard } from "@/components/shared/CategoryCard";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
 
 const CATEGORIES = [
   "Photography & Videography",
@@ -18,18 +24,30 @@ const CATEGORIES = [
 ];
 
 export function CategoryGrid() {
-  const [state, setState] = useState({ loading: true, error: null, counts: {} });
+  const [state, setState] = useState({ loading: true, error: null, counts: {}, empty: false });
 
   const load = () => {
-    setState({ loading: true, error: null, counts: {} });
+    setState({ loading: true, error: null, counts: {}, empty: false });
     api
       .get("/services/category-counts")
       .then((data) => {
         const counts = {};
         for (const item of data.items || []) counts[item.category] = item.count;
-        setState({ loading: false, error: null, counts });
+        setState({
+          loading: false,
+          error: null,
+          counts,
+          empty: (data.items || []).length === 0,
+        });
       })
-      .catch((err) => setState({ loading: false, error: err.message || "Failed to load categories", counts: {} }));
+      .catch((err) =>
+        setState({
+          loading: false,
+          error: err.message || "Failed to load categories",
+          counts: {},
+          empty: false,
+        })
+      );
   };
 
   useEffect(() => {
@@ -60,6 +78,11 @@ export function CategoryGrid() {
           </div>
         ) : state.error ? (
           <ErrorState title="Couldn't load categories" message={state.error} onRetry={load} />
+        ) : state.empty ? (
+          <EmptyState
+            title="No categories yet"
+            description="Categories will appear here once vendors publish services."
+          />
         ) : (
           <motion.div
             initial="hidden"
@@ -69,7 +92,9 @@ export function CategoryGrid() {
             className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
             {CATEGORIES.map((category) => (
-              <CategoryCard key={category} category={category} count={state.counts[category] || 0} />
+              <motion.div key={category} variants={cardVariants}>
+                <CategoryCard category={category} count={state.counts[category] || 0} />
+              </motion.div>
             ))}
           </motion.div>
         )}

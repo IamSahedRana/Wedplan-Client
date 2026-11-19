@@ -60,7 +60,14 @@ export function FeaturedServices() {
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {state.items.map((service) => (
-            <ServiceCard key={service._id} service={service} />
+            <ServiceCard
+              key={service._id}
+              service={service}
+              variants={{
+                hidden: { opacity: 0, y: 16 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+              }}
+            />
           ))}
         </motion.div>
       )}

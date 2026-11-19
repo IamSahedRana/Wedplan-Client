@@ -14,7 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-export function ServiceCard({ service, className }) {
+export function ServiceCard({ service, className, variants }) {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const { _id, serviceName, category, price, location, images = [], premium } = service;
@@ -30,10 +30,11 @@ export function ServiceCard({ service, className }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      variants={variants}
+      initial={variants ? undefined : { opacity: 0, y: 16 }}
+      whileInView={variants ? undefined : { opacity: 1, y: 0 }}
+      viewport={variants ? undefined : { once: true, margin: "-40px" }}
+      transition={variants ? undefined : { duration: 0.4, ease: "easeOut" }}
       className={cn("h-full", className)}
     >
       <Link href={`/services/${_id}`} onClick={handleClick} className="block h-full outline-none">
