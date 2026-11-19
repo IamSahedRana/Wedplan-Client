@@ -76,24 +76,30 @@ export function SignUpForm() {
 
   async function onSubmit(values) {
     setAuthError(null);
-    const { data, error } = await authClient.signUp.email({
-      email: values.email,
-      password: values.password,
-      name: values.name,
-      role: values.role,
-      image: values.image || undefined,
-      businessName: values.role === "vendor" && values.businessName ? values.businessName : undefined,
-    });
+    try {
+      const { data, error } = await authClient.signUp.email({
+        email: values.email,
+        password: values.password,
+        name: values.name,
+        role: values.role,
+        image: values.image || undefined,
+        businessName: values.role === "vendor" && values.businessName ? values.businessName : undefined,
+      });
 
-    if (error) {
-      const message = error.message || "Failed to create account";
+      if (error) {
+        const message = error.message || "Failed to create account";
+        setAuthError(message);
+        toast.error(message);
+        return;
+      }
+
+      toast.success("Account created — welcome to WedPlan!");
+      router.replace(safeRedirect(searchParams.get("redirect")) || dashboardPathFor(data?.user?.role));
+    } catch (err) {
+      const message = err.message || "Failed to create account";
       setAuthError(message);
       toast.error(message);
-      return;
     }
-
-    toast.success("Account created — welcome to WedPlan!");
-    router.replace(safeRedirect(searchParams.get("redirect")) || dashboardPathFor(data?.user?.role));
   }
 
   return (
@@ -211,7 +217,10 @@ export function SignUpForm() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <GoogleButton label="Sign up with Google" />
+        <GoogleButton
+          label="Sign up with Google"
+          callbackURL={safeRedirect(searchParams.get("redirect")) || "/dashboard"}
+        />
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">

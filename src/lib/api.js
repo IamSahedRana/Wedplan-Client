@@ -87,7 +87,11 @@ export async function api(path, { method = "GET", body, headers, retry = true, .
 
   if (res.status === 401) {
     invalidateToken();
-    await authClient.signOut();
+    try {
+      await authClient.signOut();
+    } catch {
+      // The session is already unusable; a failed sign-out must not hide the 401.
+    }
     throw new Error("Session expired. Please sign in again.");
   }
 

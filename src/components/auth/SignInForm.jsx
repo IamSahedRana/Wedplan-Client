@@ -36,20 +36,26 @@ export function SignInForm() {
 
   async function onSubmit(values) {
     setAuthError(null);
-    const { data, error } = await authClient.signIn.email({
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const { data, error } = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      });
 
-    if (error) {
-      const message = error.message || "Failed to sign in";
+      if (error) {
+        const message = error.message || "Failed to sign in";
+        setAuthError(message);
+        toast.error(message);
+        return;
+      }
+
+      toast.success(`Welcome back${data?.user?.name ? `, ${data.user.name}` : ""}!`);
+      router.replace(safeRedirect(searchParams.get("redirect")) || dashboardPathFor(data?.user?.role));
+    } catch (err) {
+      const message = err.message || "Failed to sign in";
       setAuthError(message);
       toast.error(message);
-      return;
     }
-
-    toast.success(`Welcome back${data?.user?.name ? `, ${data.user.name}` : ""}!`);
-    router.replace(safeRedirect(searchParams.get("redirect")) || dashboardPathFor(data?.user?.role));
   }
 
   return (
@@ -101,7 +107,7 @@ export function SignInForm() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <GoogleButton callbackURL={safeRedirect(searchParams.get("redirect")) || "/"} />
+        <GoogleButton callbackURL={safeRedirect(searchParams.get("redirect")) || "/dashboard"} />
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">

@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { invalidateToken } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 
 const NAV_LINKS = [
@@ -31,12 +32,22 @@ export function Navbar() {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
-  const dashboardHref = user ? `/dashboard/${user.role || "customer"}` : null;
+  const dashboardHref = user
+    ? user.onboarded === false
+      ? "/onboarding"
+      : `/dashboard/${user.role || "customer"}`
+    : null;
 
   async function handleSignOut() {
-    await authClient.signOut();
-    toast.success("Signed out successfully");
-    router.push("/");
+    try {
+      await authClient.signOut();
+      invalidateToken();
+      toast.success("Signed out successfully");
+      router.refresh();
+      router.push("/");
+    } catch (err) {
+      toast.error(err.message || "Could not sign out");
+    }
   }
 
   return (
@@ -81,15 +92,17 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link href={dashboardHref}>
                     <LayoutDashboard className="size-4" />
-                    Dashboard
+                    {user.onboarded === false ? "Complete setup" : "Dashboard"}
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`${dashboardHref}/profile`}>
-                    <Settings className="size-4" />
-                    Profile Settings
-                  </Link>
-                </DropdownMenuItem>
+                {user.onboarded !== false && (
+                  <DropdownMenuItem asChild>
+                    <Link href={`${dashboardHref}/profile`}>
+                      <Settings className="size-4" />
+                      Profile Settings
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-error focus:text-error">
                   <LogOut className="size-4" />
@@ -154,16 +167,18 @@ export function Navbar() {
                       className="mt-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-accent hover:text-primary"
                     >
                       <LayoutDashboard className="size-4" />
-                      Dashboard
+                      {user.onboarded === false ? "Complete setup" : "Dashboard"}
                     </Link>
-                    <Link
-                      href={`${dashboardHref}/profile`}
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-accent hover:text-primary"
-                    >
-                      <Settings className="size-4" />
-                      Profile Settings
-                    </Link>
+                    {user.onboarded !== false && (
+                      <Link
+                        href={`${dashboardHref}/profile`}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-accent hover:text-primary"
+                      >
+                        <Settings className="size-4" />
+                        Profile Settings
+                      </Link>
+                    )}
                     <button
                       onClick={handleSignOut}
                       className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-start text-sm font-medium text-error transition hover:bg-error-tint"

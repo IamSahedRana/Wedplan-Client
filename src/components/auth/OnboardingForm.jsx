@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { invalidateToken } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 import { dashboardPathFor } from "@/lib/redirect";
 import { cn } from "@/lib/utils";
 
@@ -62,8 +64,11 @@ export function OnboardingForm({ user }) {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.message || "Onboarding failed");
+      invalidateToken();
+      await authClient.getSession();
       toast.success("You're all set — welcome to WedPlan!");
       router.replace(dashboardPathFor(data.role));
+      router.refresh();
     } catch (err) {
       toast.error(err.message || "Onboarding failed");
     }

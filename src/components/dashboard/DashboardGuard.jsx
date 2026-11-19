@@ -7,13 +7,18 @@ import { getAuth } from "@/lib/auth";
 
 /** Async server guard: session check, blocked check, then the role-aware shell. */
 export async function DashboardGuard({ children }) {
-  const session = await getAuth().api.getSession({ headers: await headers() });
+  const requestHeaders = await headers();
+  const currentPath = requestHeaders.get("x-wedplan-path") || "/dashboard";
+  const session = await getAuth().api.getSession({ headers: requestHeaders });
 
   if (!session?.user) {
-    redirect("/signin?redirect=/dashboard");
+    redirect(`/signin?redirect=${encodeURIComponent(currentPath)}`);
   }
   if (session.user.isBlocked) {
     return <BlockedMessage />;
+  }
+  if (!session.user.onboarded) {
+    redirect("/onboarding");
   }
 
   return <DashboardShell user={session.user}>{children}</DashboardShell>;

@@ -121,10 +121,15 @@ export function DashboardShell({ user, children }) {
   const roleLabel = ROLE_LABELS[role] || "Dashboard";
 
   async function handleLogout() {
-    await authClient.signOut();
-    invalidateToken();
-    toast.success("Signed out");
-    router.push("/");
+    try {
+      await authClient.signOut();
+      invalidateToken();
+      toast.success("Signed out");
+      router.refresh();
+      router.push("/");
+    } catch (err) {
+      toast.error(err.message || "Could not sign out");
+    }
   }
 
   return (

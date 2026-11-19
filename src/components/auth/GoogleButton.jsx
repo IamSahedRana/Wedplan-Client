@@ -30,7 +30,7 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleButton({ callbackURL = "/", label = "Continue with Google" }) {
+export function GoogleButton({ callbackURL = "/dashboard", label = "Continue with Google" }) {
   const [loading, setLoading] = useState(false);
 
   async function handleGoogle() {
