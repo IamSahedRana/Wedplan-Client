@@ -69,6 +69,22 @@ export function getAuth() {
               };
             },
           },
+          update: {
+            before: async (data) => {
+              const protectedFields = [
+                "role",
+                "isBlocked",
+                "onboarded",
+                "subscriptionPlan",
+                "subscriptionExpiresAt",
+                "stripeCustomerId",
+                "stripeSubscriptionId",
+              ];
+              if (protectedFields.some((field) => Object.prototype.hasOwnProperty.call(data, field))) {
+                throw new APIError("FORBIDDEN", { message: "Protected profile fields cannot be changed" });
+              }
+            },
+          },
         },
         session: {
           create: {
