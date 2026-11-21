@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
-import { getAuth } from "@/lib/auth";
 import { getMongoDb } from "@/lib/mongodb";
+import { getSafeSession } from "@/lib/session";
 
 const schema = z.object({
   role: z.enum(["customer", "vendor"]),
@@ -12,7 +12,13 @@ const schema = z.object({
 });
 
 export async function POST(request) {
-  const session = await getAuth().api.getSession({ headers: await headers() });
+  const { session, error } = await getSafeSession(await headers());
+  if (error) {
+    return NextResponse.json(
+      { message: "Database temporarily unavailable" },
+      { status: 503 },
+    );
+  }
   if (!session?.user) {
     return NextResponse.json({ message: "Authentication required" }, { status: 401 });
   }
@@ -35,10 +41,19 @@ export async function POST(request) {
     update.businessName = parsed.data.businessName.trim();
   }
 
-  await getMongoDb().collection("users").updateOne(
-    { _id: new ObjectId(session.user.id) },
-    { $set: update }
-  );
+  try {
+    const db = await getMongoDb();
+    await db.collection("users").updateOne(
+      { _id: new ObjectId(session.user.id) },
+      { $set: update }
+    );
+  } catch (dbError) {
+    console.error("[onboarding] update failed:", dbError?.message || dbError);
+    return NextResponse.json(
+      { message: "Database temporarily unavailable" },
+      { status: 503 },
+    );
+  }
 
   return NextResponse.json({ message: "Onboarding complete", role: parsed.data.role });
 }

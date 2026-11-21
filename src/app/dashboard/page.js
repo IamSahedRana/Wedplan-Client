@@ -3,12 +3,14 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
-import { getAuth } from "@/lib/auth";
+import { SessionUnavailable } from "@/components/dashboard/SessionUnavailable";
 import { dashboardPathFor } from "@/lib/redirect";
+import { getSafeSession } from "@/lib/session";
 
 async function DashboardRedirect() {
-  const session = await getAuth().api.getSession({ headers: await headers() });
+  const { session, error } = await getSafeSession(await headers());
 
+  if (error) return <SessionUnavailable />;
   if (!session?.user) {
     redirect("/signin?redirect=/dashboard");
   }
