@@ -1,60 +1,34 @@
-# WedPlan
+# WedPlan Client
 
-WedPlan is a wedding services marketplace that connects couples with trusted local vendors. Customers can discover, compare and book wedding services; vendors can publish and manage their offerings and bookings; admins can moderate users, services and transactions.
+Next.js 16 (App Router) frontend for the WedPlan wedding services marketplace.
 
-**Live website:** `https://<live-website-url>`
-
-**Client repository:** `https://github.com/<owner>/<client-repo>`
-
-**Server repository:** `https://github.com/<owner>/<server-repo>`
+**Client repository:** `https://github.com/IamSahedRana/Wedplan-Client`
+**Server repository:** `https://github.com/IamSahedRana/Wedplan-Server`
 
 ## Features
 
-- Email/password and Google sign-in with role-based access (`customer`, `vendor`, `admin`)
-- One-time onboarding to choose customer or vendor role
-- Browse services with search, category filter, price sorting and pagination
-- Service detail pages with gallery, vendor info and booking request form
-- Vendor dashboard: overview, service management, add service, booking requests, subscription, profile
-- Customer dashboard: overview, bookings, profile
-- Admin dashboard: overview, user management, service moderation, transactions
-- Booking lifecycle: pending / accepted / rejected / cancelled, with duplicate-date protection
-- Service moderation: pending / approved / rejected; only approved and active services are public
-- Free plan allows 3 active services; premium allows unlimited
-- Stripe subscription checkout with signature-verified webhook activation
-- Blocked-user enforcement, JWT verification on every protected API request
-- Responsive UI with loading skeletons, empty states and error states
+- Email/password and Google sign-in with role-based dashboards (customer, vendor, admin)
+- Browse services with search, category filter, USD price filters, sorting and pagination
+- Vendor dashboard with service management, bookings and one-time lifetime Pro checkout
+- Pro vendors get unlimited active services, a featured badge in search and priority support UI
+- Admin dashboard for users, services and transactions
 
 ## Tech stack
 
-| Layer | Technologies |
-| --- | --- |
-| Client | Next.js 16 (App Router), React 19, JavaScript, Tailwind CSS 4, shadcn/ui, Radix UI, Framer Motion, React Hook Form, Zod, Better Auth, Recharts, Sonner, Lucide icons |
-| Server | Node.js 18+, Express 5, MongoDB (native driver), Better Auth JWT verification via `jose`, Stripe, Zod, Helmet, CORS, Morgan |
-| Hosting | Vercel (client and server) |
+Next.js 16, React 19, JavaScript, Tailwind CSS 4, shadcn/ui, Radix UI, Framer Motion, Better Auth, Zod, Recharts, Sonner, Lucide icons.
+Hosting: Vercel. API: `https://<railway-domain>/api` from the Wedplan-Server repository.
 
 ## Installation
 
-Requirements: Node.js 18 or newer, npm and a MongoDB database URI.
+```bash
+npm install
+cp .env.example .env.local   # fill in your own values; never commit .env files
+npm run dev                  # http://localhost:3000
+```
 
-1. Clone the two repositories into a folder:
-
-   ```bash
-   git clone https://github.com/<owner>/<client-repo>.git wedplan-client
-   git clone https://github.com/<owner>/<server-repo>.git wedplan-server
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   cd wedplan-client && npm install
-   cd ../wedplan-server && npm install
-   ```
-
-3. In each project, copy `.env.example` to `.env` and fill in your own values. Never commit `.env` files; `.gitignore` already excludes them. The variable names are listed below.
+Production commands: `npm run build` then `npm start`.
 
 ## Environment variables (names only)
-
-Client (`wedplan-client/.env`):
 
 ```text
 MONGODB_URI
@@ -71,51 +45,30 @@ ADMIN_PASSWORD
 ADMIN_NAME
 ```
 
-Server (`wedplan-server/.env`):
+- `NEXT_PUBLIC_API_URL` must include the `/api` suffix in production, e.g. `https://<railway-domain>/api`.
+- `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` must be the exact client origin (no trailing slash). The API uses `CLIENT_URL` with the same value to fetch JWKS and verify JWTs.
+- `BETTER_AUTH_SECRET` must match the secret used when sessions were created. Changing it invalidates existing JWT keys.
+- `ADMIN_*` values are used only by `npm run seed:admin`.
 
-```text
-PORT
-MONGODB_URI
-DB_NAME
-CLIENT_URL
-STRIPE_SECRET_KEY
-STRIPE_WEBHOOK_SECRET
-STRIPE_PRICE_ID
-```
+## Local development
 
-## Local run
+Start the API from `Wedplan-Server` first (`npm run dev`, port 5000), then this client. `NEXT_PUBLIC_API_URL` may be left empty locally if the API is on `http://localhost:5000/api` through the dev proxy; otherwise set it explicitly.
 
-Start the API first, then the client (use two terminals):
+## Deployment on Vercel
 
-```bash
-# Terminal 1 - API at http://localhost:5000
-cd wedplan-server
-npm run dev
-```
+1. Import `Wedplan-Client` into Vercel; framework preset Next.js, root directory `/`.
+2. Set every variable above **before the first build**. `NEXT_PUBLIC_*` values are compiled into the client bundle, so redeploy after changing any of them.
+3. Use these production values:
+   - `BETTER_AUTH_URL` = `https://<your-vercel-app>.vercel.app`
+   - `NEXT_PUBLIC_APP_URL` = same origin
+   - `NEXT_PUBLIC_API_URL` = `https://<your-railway-app>/api`
+   - `MONGODB_URI` / `DB_NAME` = same database as the API
+4. Add the Vercel origin to Google OAuth authorized origins and redirect URIs if Google sign-in is enabled.
+5. Create the first admin by running `npm run seed:admin` locally with the `ADMIN_*` values pointing at the production database.
+6. Stripe webhook belongs to the server, not the client: `https://<your-railway-app>/api/payments/webhook`.
 
-```bash
-# Terminal 2 - website at http://localhost:3000
-cd wedplan-client
-npm run dev
-```
+## Troubleshooting
 
-Optional demo data:
-
-```bash
-# Client - create the first admin (uses values from client .env)
-npm run seed:admin
-
-# Server - seed services for two existing vendor emails
-npm run seed:services -- vendor1@example.com vendor2@example.com
-```
-
-Production commands:
-
-```bash
-# Client
-npm run build
-npm start
-
-# Server
-npm start
-```
+- No dashboard data or repeated sign-outs: API is unreachable, `NEXT_PUBLIC_API_URL` is stale/localhost, or the server's `CLIENT_URL` does not match this origin (JWKS 401).
+- "Failed to fetch" in Chrome devtools: browser extensions such as Similarweb patch `window.fetch`; disable them for localhost or test in incognito.
+- Prices show a huge amount: stored prices are legacy numeric values; the UI formats them as USD without conversion.
