@@ -1,5 +1,7 @@
 # WedPlan — Wedding Services Marketplace (Client)
 
+## Project Name and Description
+
 WedPlan is a wedding services marketplace where couples discover, compare and book trusted vendors for photography, venues, decoration, catering, makeup and fashion. This repository contains the Next.js client: authentication, role-based dashboards, service browsing, booking flows and the one-time lifetime Pro checkout UI.
 
 ## Important Features
