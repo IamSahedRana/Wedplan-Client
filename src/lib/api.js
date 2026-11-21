@@ -5,11 +5,18 @@ import { authClient } from "./auth-client";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "";
 // NEXT_PUBLIC_API_URL may be given with or without the /api suffix — normalize it.
 const RAW_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").trim();
-const API_URL = RAW_API_URL
-  ? RAW_API_URL.endsWith("/api")
-    ? RAW_API_URL
-    : `${RAW_API_URL.replace(/\/+$/, "")}/api`
-  : "";
+const LOCAL_API_URL = "http://localhost:5000/api";
+const isLocalDev =
+  process.env.NODE_ENV !== "production" &&
+  typeof window !== "undefined" &&
+  ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const API_URL = isLocalDev
+  ? LOCAL_API_URL
+  : RAW_API_URL
+    ? RAW_API_URL.endsWith("/api")
+      ? RAW_API_URL
+      : `${RAW_API_URL.replace(/\/+$/, "")}/api`
+    : LOCAL_API_URL;
 
 let cachedToken = null;
 let cachedExpiry = 0;
